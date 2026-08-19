@@ -16,16 +16,57 @@ pipeline {
                 checkout scm
             }
         }
+stage('Install Required Tools') {
+    steps {
+        sh '''
+            echo "================================"
+            echo "Installing required tools on Agent"
+            echo "================================"
 
+            sudo apt update
+
+            if ! command -v git >/dev/null 2>&1; then
+                echo "Git not installed. Installing..."
+                sudo apt install git -y
+            else
+                echo "Git already installed"
+            fi
+
+            if ! command -v mvn >/dev/null 2>&1; then
+                echo "Maven not installed. Installing..."
+                sudo apt install maven -y
+            else
+                echo "Maven already installed"
+            fi
+
+            if ! command -v docker >/dev/null 2>&1; then
+                echo "Docker not installed. Installing..."
+                sudo apt install docker.io -y
+                sudo systemctl enable docker
+                sudo systemctl start docker
+            else
+                echo "Docker already installed"
+            fi
+        '''
+    }
+}
         stage('Verify Tools') {
-            steps {
-                sh '''
-                    java -version
-                    mvn -version
-                    docker --version
-                '''
-            }
-        }
+    steps {
+        sh '''
+            echo "===== JAVA ====="
+            java -version
+
+            echo "===== GIT ====="
+            git --version
+
+            echo "===== MAVEN ====="
+            mvn -version
+
+            echo "===== DOCKER ====="
+            docker --version
+        '''
+    }
+}
 
         stage('Test') {
             steps {
