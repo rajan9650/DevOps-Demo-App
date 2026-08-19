@@ -1,5 +1,7 @@
 pipeline {
-    agent any
+    agent {
+    label 'ubuntu-agent'
+}
 
     environment {
         APP_NAME = 'devops-demo-app'
